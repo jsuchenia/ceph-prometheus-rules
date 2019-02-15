@@ -13,7 +13,7 @@ groups:
     expr: ceph_health_status > 1
     for: 5m
     labels:
-      severity: error
+      severity: critical
     annotations:
       description: Ceph is in Error state longer than 5m, please check status of pools and OSDs
       summary: CEPH in ERROR
@@ -77,7 +77,7 @@ groups:
     expr: ceph_pg_down > 0
     for: 3m
     labels:
-      severity: error
+      severity: critical
     annotations:
       description: Some groups are down (unavailable) for too long on {{ $labels.cluster }}. Please ensure that all the data are available
       summary: PG DOWN [{{ $value }}] on {{ $labels.cluster }}
@@ -97,22 +97,14 @@ groups:
     annotations:
       description: Some groups are inconsistent for too long on {{ $labels.cluster }}. Data is available but inconsistent across nodes
       summary: PG INCONSISTENT [{{ $value }}] on {{ $labels.cluster }}
-  - alert: CephPgActivatingRgw
-    expr: ceph_pg_activating{apptype="rgw"} > 0
-    for: 7m
+  - alert: CephPgActivating
+    expr: ceph_pg_activating > 0
+    for: 5m
     labels:
       severity: critical
     annotations:
-      description: Some groups are activating for too long on RGW {{ $labels.cluster }}. Those PGs are unavailable for too long!
-      summary: RGW PG ACTIVATING [{{ $value }}] on {{ $labels.cluster }}
-  - alert: CephPgActivatingRbd
-    expr: ceph_pg_activating{apptype="rbd"} > 0
-    for: 3m
-    labels:
-      severity: error
-    annotations:
-      description: Some groups are activating for too long on RBD {{ $labels.cluster }}. Those PGs are unavailable for too long!
-      summary: RBD PG ACTIVATING [{{ $value }}] on {{ $labels.cluster }}
+      description: Some groups are activating for too long on {{ $labels.cluster }}. Those PGs are unavailable for too long!
+      summary: PG ACTIVATING [{{ $value }}] on {{ $labels.cluster }}
   - alert: CephPgBackfillTooFull
     expr: ceph_pg_backfill_toofull > 0
     for: 5m
@@ -121,22 +113,14 @@ groups:
     annotations:
       description: Some groups are located on full OSD on cluster {{ $labels.cluster }}. Those PGs can be unavailable shortly. Please check OSDs, change weight or reconfigure CRUSH rules.
       summary: PG TOO FULL [{{ $value }}] on {{ $labels.cluster }}
-  - alert: CephPgUnavailableRgw
-    expr: ceph_pg_total{apptype="rgw"} - ceph_pg_active{apptype="rgw"} > 0
-    for: 7m
+  - alert: CephPgUnavailable
+    expr: ceph_pg_total - ceph_pg_active > 0
+    for: 5m
     labels:
       severity: critical
     annotations:
-      description: Some groups are unavailable on RGW {{ $labels.cluster }}. Please check their detailed status and current configuration.
-      summary: RGW PG UNAVAILABLE [{{ $value }}] on {{ $labels.cluster }}
-  - alert: CephPgUnavailableRbd
-    expr: ceph_pg_total{apptype="rbd"} - ceph_pg_active{apptype="rbd"} > 0
-    for: 3m
-    labels:
-      severity: critical
-    annotations:
-      description: Some groups are unavailable on RBD {{ $labels.cluster }}. Please check their detailed status and current configuration.
-      summary: RBD PG UNAVAILABLE [{{ $value }}] on {{ $labels.cluster }}
+      description: Some groups are unavailable on {{ $labels.cluster }}. Please check their detailed status and current configuration.
+      summary: PG UNAVAILABLE [{{ $value }}] on {{ $labels.cluster }}
   - alert: CephOsdReweighted
     expr: ceph_osd_weight < 1
     for: 1h
